@@ -1,3 +1,35 @@
+/* Estrellas fugaces */
+.shooting-star {
+  position: absolute;
+  width: 2px;
+  height: 80px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0) 100%);
+  border-radius: 50% 50% 60% 60%;
+  pointer-events: none;
+  opacity: 0;
+  transform: rotate(-25deg);
+  z-index: 10;
+  animation: shooting 2.2s cubic-bezier(.7,.1,.7,1) forwards;
+}
+
+@keyframes shooting {
+  0% {
+    opacity: 0;
+    transform: translateY(0) translateX(0) scaleY(0.7) rotate(-25deg);
+  }
+  10% {
+    opacity: 1;
+    scale: 1 1;
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(60px) translateX(180px) scaleY(1.1) rotate(-25deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(80px) translateX(240px) scaleY(1.2) rotate(-25deg);
+  }
+}
 /* Fondo */
 :root{
   --sky-top:#0e1224;
@@ -19,6 +51,21 @@ body{
 .scene{
   position:relative; width:100%; height:100%;
   background: linear-gradient(to top,var(--sky-bot),var(--sky-top));
+  animation: sky-move 18s ease-in-out infinite alternate;
+}
+@keyframes sky-move {
+  0% {
+    background-position: 50% 0%;
+    filter: brightness(1) hue-rotate(0deg);
+  }
+  50% {
+    background-position: 50% 100%;
+    filter: brightness(1.08) hue-rotate(10deg);
+  }
+  100% {
+    background-position: 50% 0%;
+    filter: brightness(1) hue-rotate(0deg);
+  }
 }
 .garden{
   position:absolute; inset:0; display:block; overflow:hidden;
@@ -148,7 +195,71 @@ body{
   position:absolute; width:3px; height:3px; border-radius:50%;
   background:rgba(255,255,255,.9);
   filter: drop-shadow(0 0 4px rgba(255,255,255,.8));
-  animation: twinkle 3s ease-in-out infinite;
+  animation: twinkle 3s ease-in-out infinite, star-move 18s linear infinite;
+}
+
+/* Estrellas fugaces con estela */
+/* Estrella fugaz con cabeza redonda y cola afilada */
+.shooting-star{
+  --shoot-dur: 3s;
+  --angle: -28deg;
+  --shoot-x: -48vw;
+  --shoot-y:  22vh;
+
+  position:absolute;
+  width:2px; height:2px; border-radius:50%;
+  background:#fff;
+  transform: translate3d(0,0,0) rotate(var(--angle));
+  opacity:0;
+  animation: shoot var(--shoot-dur) linear infinite;
+  animation-delay: var(--delay, 0s);
+
+  /* clave: aísla para que z-index funcione sí o sí entre ::before y ::after */
+  isolation: isolate;
+}
+
+/* cabeza brillante */
+.shooting-star::before{
+  content:"";
+  position:absolute; left:0; top:50%;
+  width:10px; height:10px; border-radius:50%;
+  transform: translate(-50%,-50%);         /* centrada en el origen */
+  background: radial-gradient(circle,
+              #fff 0 35%, rgba(255,255,255,.9) 36% 55%,
+              rgba(255,255,255,0) 70%);
+  filter: blur(.4px) drop-shadow(0 0 10px #fff);
+  z-index:3;                                /* <- cabeza arriba */
+}
+
+/* cola cónica DETRÁS de la cabeza (hacia la derecha) */
+.shooting-star::after{
+  content:"";
+  position:absolute; left:0; top:50%;
+  width:240px; height:6px;
+
+  /* coloca toda la cola a la DERECHA del origen (la cabeza) */
+  transform: translate(0, -50%);
+
+  /* el brillo inicia pegado a la cabeza (izquierda) y se apaga hacia la derecha */
+  background: linear-gradient(to right,
+              rgba(255,255,255,.95) 0%,
+              rgba(255,255,255,.35) 40%,
+              rgba(255,255,255,0) 100%);
+
+  /* afilada hacia la cola */
+  clip-path: polygon(0 45%, 100% 0, 100% 100%, 0 55%);
+
+  filter: blur(1px) drop-shadow(0 0 6px rgba(255,255,255,.8));
+  opacity:.95;
+  z-index:1;                                 /* <- cola detrás de la cabeza */
+}
+
+/* movimiento (igual que ya tenías) */
+@keyframes shoot{
+  0%   { opacity:0; transform: translate3d(0,0,0) rotate(var(--angle)); }
+  8%   { opacity:1; }
+  85%  { opacity:.95; }
+  100% { opacity:0; transform: translate3d(var(--shoot-x), var(--shoot-y), 0) rotate(var(--angle)); }
 }
 
 /* ANIMACIONES */
@@ -169,6 +280,15 @@ body{
 @keyframes twinkle{
   0%,100%{ transform:translateY(0); opacity:.6; }
   50%{ transform:translateY(-2px); opacity:1; }
+}
+
+@keyframes star-move {
+  0% { transform: translateY(0) scale(1); }
+  20% { transform: translateY(-2px) scale(1.05); }
+  40% { transform: translateY(2px) scale(0.98); }
+  60% { transform: translateY(-1px) scale(1.02); }
+  80% { transform: translateY(1px) scale(1.01); }
+  100% { transform: translateY(0) scale(1); }
 }
 
 /* responsivo */
