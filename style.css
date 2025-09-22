@@ -1,0 +1,177 @@
+/* Fondo */
+:root{
+  --sky-top:#0e1224;
+  --sky-bot:#2a2d46;
+  --petal-grad:#ff8c00;
+  --petal-mid:#ffd700;
+  --petal-end:#ffff00;
+  --leaf:#2f9d55;
+  --leaf-dark:#227a40;
+  --stem:#2e8b57;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;
+  background: radial-gradient(1200px 700px at 50% 20%, #1a1d35 0 20%, #0c0f21 70%, #080a17 100%);
+  color:#ffe97a; overflow:hidden;
+}
+.scene{
+  position:relative; width:100%; height:100%;
+  background: linear-gradient(to top,var(--sky-bot),var(--sky-top));
+}
+.garden{
+  position:absolute; inset:0; display:block; overflow:hidden;
+}
+.ground{
+  position:absolute; left:0; right:0; bottom:0; height:28vh;
+  background: radial-gradient(80% 50% at 50% 0%, #1f2e1f 0 60%, #0f1a12 100%);
+  filter: blur(1px);
+}
+
+/* título */
+.dedication{
+  position:absolute; top:20px; left:50%; transform:translateX(-50%);
+  font-weight:700; letter-spacing:.5px; margin:0;
+  text-shadow:0 2px 8px rgba(0,0,0,.6);
+}
+
+/* --- FLORES --- */
+.flower{
+  --x: 50vw;             /* posición horizontal (px o vw)  */
+  --stem-h: 220px;       /* alto del tallo                 */
+  --head: 54px;          /* tamaño del centro (diámetro)   */
+  --delay: 0s;           /* retraso de crecimiento         */
+  --sway: 4deg;          /* amplitud de balanceo           */
+  --speed: 4.5s;         /* velocidad de balanceo          */
+  position:absolute;
+  left:var(--x);
+  bottom:12vh;
+  /* quitar animación aquí; la aplicaremos al wrapper para que el tallo/hueva se balanceen
+     sin mover las hojas fuera de lugar */
+  will-change: transform;
+}
+
+/* wrapper que recibirá la animación de balanceo (sway) */
+.flower__wrap{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  /* asegurar que el wrapper abarque tallo + cabeza para posicionamiento correcto */
+  height: calc(var(--stem-h) + var(--head) * 1.1);
+  transform-origin: 50% calc(var(--stem-h) + 12vh);
+  animation: sway var(--speed) ease-in-out infinite alternate;
+  animation-delay: calc(var(--delay) + 1.2s);
+}
+
+/* tallo */
+.flower__stem{
+  position:absolute; left:50%; bottom:0; /* centrar el tallo dentro del wrap */
+  width:6px; height:var(--stem-h);
+  margin-left:-3px; /* compensar el left:50% */
+  background: linear-gradient(#2d7a4f 0%, var(--stem) 60%, #1b5f3c 100%);
+  border-radius:4px;
+  transform-origin: bottom;
+  transform: scaleY(0);
+  animation: grow 1.2s ease-out forwards;
+  animation-delay: var(--delay);
+  box-shadow: 0 0 6px rgba(0,0,0,.25) inset;
+  z-index:1;
+}
+
+/* hojas */
+.leaf{
+  position:absolute; width:60px; height:34px; 
+  background: radial-gradient(120% 100% at 40% 30%, #3cb46a 0 35%, var(--leaf) 60%, var(--leaf-dark) 100%);
+  border-radius: 60% 60% 50% 50% / 80% 80% 30% 30%;
+  transform-origin: left center;
+  filter: drop-shadow(0 4px 3px rgba(0,0,0,.25));
+  opacity:0; transform: scale(.6) rotate(-20deg);
+  animation: leafIn .9s ease-out forwards;
+}
+.leaf.r{ right:-8px; left:auto; transform-origin:right center; }
+.leaf:nth-child(1){ bottom:calc(var(--stem-h) * .22); left:-8px; animation-delay: calc(var(--delay) + .25s) }
+.leaf:nth-child(2){ bottom:calc(var(--stem-h) * .38); right:-8px; animation-delay: calc(var(--delay) + .38s) }
+.leaf:nth-child(3){ bottom:calc(var(--stem-h) * .55); left:-8px; animation-delay: calc(var(--delay) + .52s) }
+.leaf:nth-child(4){ bottom:calc(var(--stem-h) * .70); right:-8px; animation-delay: calc(var(--delay) + .65s) }
+
+/* cabezuela */
+.head{
+  position:absolute; left:50%;
+  /* colocar la cabeza ligeramente más baja para que el centro quede sobre la punta del tallo */
+  bottom: calc(var(--stem-h) - (var(--head) * 0.5));
+  transform: translateX(-50%) scale(.6);
+  transform-origin: center bottom;
+  opacity:0;
+  animation: pop 700ms cubic-bezier(.2,1.2,.2,1) forwards;
+  animation-delay: calc(var(--delay) + .85s);
+  z-index:4; /* encima del tallo y hojas */
+}
+
+/* pétalos */
+.petals{
+  position:relative; width: calc(var(--head) * 2.1);
+  height: calc(var(--head) * 2.1);
+  z-index: 1;
+  /* centrar exactamente sobre el centro y bajar 30px */
+  transform: translate(-50%,-50%);
+  left:50%; top:calc(50% + 10px);
+  pointer-events:none;
+}
+.petal{
+  position:absolute; left:50%; top:80%;
+  width:20px; height:46px;
+  transform-origin:50% 78%; /* acercar el origen para que los pétalos roten alrededor del centro */
+  border-radius: 50% 50% 40% 40%;
+  background:
+    radial-gradient(circle at 50% 30%, var(--petal-end) 0 45%, var(--petal-mid) 46% 75%, var(--petal-grad) 76% 100%);
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,.25));
+  opacity:0; transform: translate(-50%,-50%) scale(.4) rotate(var(--rot));
+  animation: petalIn 600ms ease-out forwards;
+  animation-delay: calc(var(--delay) + 1s + var(--petal-d));
+  z-index:3; /* pétalos por encima del centro */
+}
+
+/* Pequeño offset en cada pétalo para que no formen un bloque macizo */
+.petal::before{
+  content:''; position:absolute; inset:0; border-radius:inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  transform: translateY(-2px) scaleY(0.98);
+}
+
+/* centro */
+
+
+/* estrellas suaves de fondo (opcionales) */
+.star{
+  position:absolute; width:3px; height:3px; border-radius:50%;
+  background:rgba(255,255,255,.9);
+  filter: drop-shadow(0 0 4px rgba(255,255,255,.8));
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+/* ANIMACIONES */
+@keyframes grow{ to{ transform:scaleY(1);} }
+@keyframes pop{ to{ transform:translateX(-50%) scale(1); opacity:1; } }
+@keyframes leafIn{
+  30%{opacity:1}
+  to{ opacity:1; transform: scale(1) rotate(0deg); }
+}
+@keyframes petalIn{
+  60%{ opacity:1; transform: translate(-50%,-50%) scale(1.05) rotate(var(--rot)); }
+  to  { opacity:1; transform: translate(-50%,-50%) scale(1)    rotate(var(--rot)); }
+}
+@keyframes sway{
+  from{ transform: rotate(calc(var(--sway) * -1)); }
+  to  { transform: rotate(var(--sway)); }
+}
+@keyframes twinkle{
+  0%,100%{ transform:translateY(0); opacity:.6; }
+  50%{ transform:translateY(-2px); opacity:1; }
+}
+
+/* responsivo */
+@media (max-width:640px){
+  .dedication{ font-size:18px }
+}
